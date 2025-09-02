@@ -1,137 +1,168 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8">
-  <title>Doğukan Futbol Oyunu</title>
-  <style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Futbol Oyunu - Beşiktaş Temalı</title>
+<style>
     body {
-      margin: 0;
-      overflow: hidden;
-      background: url('https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/Besiktas_JK_Logo.svg/800px-Besiktas_JK_Logo.svg.png') center no-repeat;
-      background-size: contain;
-      background-color: #000;
+        margin: 0;
+        background: #111;
+        overflow: hidden;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
     }
-    canvas {
-      display: block;
-      margin: auto;
-      background: rgba(255,255,255,0.1);
-      border: 3px solid white;
+    #gameCanvas {
+        background: green;
+        border: 5px solid white;
+        box-shadow: 0 0 30px rgba(0,0,0,0.7);
+        background-image: radial-gradient(rgba(255,255,255,0.2) 2%, transparent 3%),
+                          linear-gradient(white 2px, transparent 2px);
+        background-size: 80px 80px, 100% 100%;
+        position: relative;
+    }
+    /* Beşiktaş logosunu basit SVG ile arka plana ekleme */
+    #gameCanvas::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120"><circle cx="60" cy="60" r="55" fill="black"/><text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle" font-size="50" fill="white">BJK</text></svg>') center/30% no-repeat;
+        opacity: 0.15;
+        z-index: 0;
     }
     #score {
-      position: absolute;
-      top: 20px;
-      left: 20px;
-      color: white;
-      font-size: 24px;
-      font-family: Arial, sans-serif;
+        position: absolute;
+        top: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        color: white;
+        font-size: 24px;
+        font-weight: bold;
+        text-shadow: 0 0 5px black;
+        z-index: 2;
     }
-  </style>
+</style>
 </head>
 <body>
-  <div id="score">Skor: 0</div>
-  <canvas id="gameCanvas" width="800" height="500"></canvas>
+<canvas id="gameCanvas" width="800" height="500"></canvas>
+<script>
+const canvas = document.getElementById("gameCanvas");
+const ctx = canvas.getContext("2d");
 
-  <script>
-    const canvas = document.getElementById('gameCanvas');
-    const ctx = canvas.getContext('2d');
-    const keys = {};
-    let score = 0;
+let player = { x: 100, y: 250, w: 30, h: 30, speed: 5 };
+let ball = { x: 140, y: 250, r: 10, dx: 0, dy: 0, speed: 7, free: true };
+let goalie = { x: 740, y: 200, w: 20, h: 100, speed: 3 };
+let keys = {};
+let score = 0;
 
-    // Oyuncu
-    const player = { x: 100, y: 220, w: 40, h: 40, speed: 5 };
+// Klavye olayları
+document.addEventListener("keydown", e => keys[e.key] = true);
+document.addEventListener("keyup", e => keys[e.key] = false);
 
-    // Top
-    const ball = { x: 150, y: 250, r: 10, dx: 0, dy: 0 };
+function drawPlayer() {
+    ctx.fillStyle = "#fff";
+    ctx.fillRect(player.x, player.y, player.w, player.h);
+    ctx.strokeStyle = "black";
+    ctx.strokeRect(player.x, player.y, player.w, player.h);
+}
 
-    // Kaleci
-    const goalie = { x: 750, y: 200, w: 30, h: 100, speed: 4, dir: 1 };
+function drawBall() {
+    ctx.beginPath();
+    ctx.arc(ball.x, ball.y, ball.r, 0, Math.PI * 2);
+    ctx.fillStyle = "white";
+    ctx.fill();
+    ctx.strokeStyle = "black";
+    ctx.stroke();
+}
 
-    window.addEventListener('keydown', e => keys[e.key] = true);
-    window.addEventListener('keyup', e => keys[e.key] = false);
+function drawGoalie() {
+    ctx.fillStyle = "red";
+    ctx.fillRect(goalie.x, goalie.y, goalie.w, goalie.h);
+    ctx.strokeStyle = "black";
+    ctx.strokeRect(goalie.x, goalie.y, goalie.w, goalie.h);
+}
 
-    function movePlayer() {
-      if (keys['ArrowUp'] && player.y > 0) player.y -= player.speed;
-      if (keys['ArrowDown'] && player.y + player.h < canvas.height) player.y += player.speed;
-      if (keys['ArrowLeft'] && player.x > 0) player.x -= player.speed;
-      if (keys['ArrowRight'] && player.x + player.w < canvas.width) player.x += player.speed;
+function drawScore() {
+    ctx.font = "20px Arial";
+    ctx.fillStyle = "white";
+    ctx.fillText("Skor: " + score, 350, 30);
+}
+
+function movePlayer() {
+    if (keys["ArrowUp"] && player.y > 0) player.y -= player.speed;
+    if (keys["ArrowDown"] && player.y + player.h < canvas.height) player.y += player.speed;
+    if (keys["ArrowLeft"] && player.x > 0) player.x -= player.speed;
+    if (keys["ArrowRight"] && player.x + player.w < canvas.width) player.x += player.speed;
+}
+
+function shootBall() {
+    if (keys[" "] && ball.free) {
+        ball.free = false;
+        ball.dx = 5; 
+        ball.dy = (Math.random() - 0.5) * 4; 
     }
+}
 
-    function moveBall() {
-      ball.x += ball.dx;
-      ball.y += ball.dy;
-      ball.dx *= 0.98; // sürtünme
-      ball.dy *= 0.98;
-
-      if (ball.x - ball.r < 0 || ball.x + ball.r > canvas.width) ball.dx *= -1;
-      if (ball.y - ball.r < 0 || ball.y + ball.r > canvas.height) ball.dy *= -1;
+function moveBall() {
+    if (!ball.free) {
+        ball.x += ball.dx;
+        ball.y += ball.dy;
+        // Kaleye gol
+        if (ball.x + ball.r > canvas.width) {
+            score++;
+            resetBall();
+        }
+        // Kaleci kurtarırsa
+        if (ball.x + ball.r > goalie.x && 
+            ball.y > goalie.y && 
+            ball.y < goalie.y + goalie.h) {
+            resetBall();
+        }
+        // Top kenara çarparsa sekmesin, sadece geri dönsün
+        if (ball.y - ball.r < 0 || ball.y + ball.r > canvas.height) {
+            ball.dy *= -1;
+        }
+    } else {
+        // Top oyuncuya bağlı
+        ball.x = player.x + player.w + 10;
+        ball.y = player.y + player.h/2;
     }
+}
 
-    function moveGoalie() {
-      goalie.y += goalie.speed * goalie.dir;
-      if (goalie.y <= 0 || goalie.y + goalie.h >= canvas.height) goalie.dir *= -1;
-    }
+function moveGoalie() {
+    // Topa doğru akıllı hareket
+    if (ball.y < goalie.y + goalie.h/2) goalie.y -= goalie.speed;
+    else if (ball.y > goalie.y + goalie.h/2) goalie.y += goalie.speed;
 
-    function checkKick() {
-      const distX = ball.x - (player.x + player.w/2);
-      const distY = ball.y - (player.y + player.h/2);
-      const dist = Math.sqrt(distX*distX + distY*distY);
-      if (dist < 40 && keys[' ']) { // Space tuşu
-        ball.dx = distX * 0.3;
-        ball.dy = distY * 0.3;
-      }
-    }
+    // Sınırlar
+    if (goalie.y < 0) goalie.y = 0;
+    if (goalie.y + goalie.h > canvas.height) goalie.y = canvas.height - goalie.h;
+}
 
-    function checkGoal() {
-      // Kaleye çarpma
-      if (
-        ball.x + ball.r > goalie.x &&
-        ball.y > goalie.y &&
-        ball.y < goalie.y + goalie.h
-      ) {
-        ball.dx *= -1; // top geri seker
-      }
-      // Gol çizgisi (kaleciyi geçerse)
-      if (ball.x + ball.r >= canvas.width) {
-        score++;
-        document.getElementById('score').innerText = "Skor: " + score;
-        ball.x = 150;
-        ball.y = 250;
-        ball.dx = 0;
-        ball.dy = 0;
-      }
-    }
+function resetBall() {
+    ball.x = player.x + player.w + 10;
+    ball.y = player.y + player.h/2;
+    ball.dx = 0;
+    ball.dy = 0;
+    ball.free = true;
+}
 
-    function drawPlayer() {
-      ctx.fillStyle = "#fff";
-      ctx.fillRect(player.x, player.y, player.w, player.h);
-    }
+function gameLoop() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    movePlayer();
+    shootBall();
+    moveBall();
+    moveGoalie();
+    drawPlayer();
+    drawBall();
+    drawGoalie();
+    drawScore();
+    requestAnimationFrame(gameLoop);
+}
 
-    function drawBall() {
-      ctx.fillStyle = "red";
-      ctx.beginPath();
-      ctx.arc(ball.x, ball.y, ball.r, 0, Math.PI*2);
-      ctx.fill();
-    }
-
-    function drawGoalie() {
-      ctx.fillStyle = "#0f0";
-      ctx.fillRect(goalie.x, goalie.y, goalie.w, goalie.h);
-    }
-
-    function gameLoop() {
-      ctx.clearRect(0,0,canvas.width,canvas.height);
-      movePlayer();
-      moveBall();
-      moveGoalie();
-      checkKick();
-      checkGoal();
-      drawPlayer();
-      drawBall();
-      drawGoalie();
-      requestAnimationFrame(gameLoop);
-    }
-
-    gameLoop();
-  </script>
+gameLoop();
+</script>
 </body>
 </html>
