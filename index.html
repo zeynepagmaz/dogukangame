@@ -1,569 +1,604 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1" />
-  <title>Profesyonel Futbol Oyunu — BJK Temalı</title>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"/>
+  <title>Beşiktaş Temalı Futbol — 1P/2P, Kartal, Taraftar</title>
   <style>
     :root{
-      --bg:#0c0d11;
-      --fg:#e7ecf3;
-      --muted:#9aa5b1;
-      --accent:#6ee7e7;
-      --accent2:#a78bfa;
-      --danger:#ef4444;
-      --ok:#22c55e;
-      --glass:rgba(255,255,255,.06);
-      --glass2:rgba(255,255,255,.12);
+      --bg:#0c0d11;--fg:#e7ecf3;--muted:#a5b0bd;--ok:#22c55e;--bad:#ef4444;
+      --glass:rgba(255,255,255,.06);--glass2:rgba(255,255,255,.12);
+      --accent:#a78bfa;--accent2:#6ee7e7;
     }
     html,body{height:100%;margin:0;background:var(--bg);color:var(--fg);font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial}
-    .wrap{
-      display:flex;flex-direction:column;align-items:center;gap:14px;min-height:100%;
+    .wrap{min-height:100%;display:flex;flex-direction:column;align-items:center;gap:12px;
       background:
-        radial-gradient(1200px 500px at 10% 0%, rgba(99,102,241,.16), transparent 60%),
-        radial-gradient(900px 400px at 90% 10%, rgba(45,212,191,.14), transparent 60%),
-        radial-gradient(800px 500px at 50% 100%, rgba(168,85,247,.14), transparent 60%);
+      radial-gradient(1200px 500px at 10% 0%, rgba(99,102,241,.16), transparent 60%),
+      radial-gradient(900px 400px at 90% 10%, rgba(45,212,191,.14), transparent 60%),
+      radial-gradient(800px 500px at 50% 100%, rgba(168,85,247,.14), transparent 60%);
     }
-    header{
-      width:clamp(320px,94vw,1200px);
-      margin-top:10px;
-      display:flex;justify-content:space-between;align-items:center;gap:12px;
+    header,footer{
+      width:clamp(320px,95vw,1200px);display:flex;justify-content:space-between;align-items:center;gap:10px;
       background:var(--glass);backdrop-filter:blur(8px);
       border:1px solid var(--glass2);border-radius:14px;padding:10px 14px;
-      box-shadow:0 10px 30px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.06);
+      box-shadow:0 10px 30px rgba(0,0,0,.25),inset 0 1px 0 rgba(255,255,255,.06);
     }
-    .brand{
-      display:flex;align-items:center;gap:10px;
-    }
-    .badge{
-      width:28px;height:28px;border-radius:8px;
-      background:linear-gradient(135deg,#111,#333);
-      display:grid;place-items:center;color:#fff;font-weight:900;font-size:12px;
-      border:1px solid rgba(255,255,255,.08);
-      box-shadow:0 4px 18px rgba(0,0,0,.35);
-    }
-    .title{
-      font-weight:800;letter-spacing:.2px;
-      background:linear-gradient(90deg,#a78bfa,#6ee7e7);
-      -webkit-background-clip:text;background-clip:text;color:transparent;
-    }
-    .score{
-      display:flex;align-items:center;gap:12px;color:var(--muted);font-size:14px;
-    }
-    .score b{color:var(--fg);font-size:15px}
+    .brand{display:flex;align-items:center;gap:10px}
+    .badge{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#111,#333);
+      display:grid;place-items:center;color:#fff;font-weight:900;font-size:12px;border:1px solid rgba(255,255,255,.08)}
+    .title{font-weight:800;background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
+    .score{display:flex;gap:8px;align-items:center}
+    .score b{font-size:16px}
     .controls{font-size:12px;color:var(--muted)}
-    .hint{font-size:12px;color:var(--muted)}
-    .panel{
-      width:clamp(320px,94vw,1200px);
-      display:grid;grid-template-columns:1fr;gap:12px;
-    }
-    /* Canvas kabı */
-    .stage{
-      position:relative;
-      background:var(--glass);backdrop-filter:blur(8px);
-      border:1px solid var(--glass2);border-radius:18px;padding:10px;
-      box-shadow:0 10px 30px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.06);
-      overflow:hidden;
-    }
-    canvas{width:100%;height:auto;display:block;border-radius:12px}
-    /* Mobil butonlar */
-    .touch{
-      position:absolute;left:10px;bottom:10px;right:10px;display:flex;justify-content:space-between;pointer-events:none;
-    }
-    .dpad,.shoot{
-      pointer-events:auto;
-      display:grid;place-items:center;background:var(--glass);backdrop-filter:blur(6px);
-      border:1px solid var(--glass2);border-radius:12px;color:var(--fg);
-      box-shadow:0 8px 20px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.06);
-    }
+    .panel{width:clamp(320px,95vw,1200px);display:grid;grid-template-columns:1fr;gap:12px}
+    .stage{position:relative;background:var(--glass);backdrop-filter:blur(8px);
+      border:1px solid var(--glass2);border-radius:18px;padding:10px;box-shadow:0 10px 30px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.06);overflow:hidden}
+    canvas{width:100%;height:auto;border-radius:12px;display:block}
+    .hud{position:absolute;top:10px;left:10px;display:flex;gap:8px;flex-wrap:wrap}
+    .chip{background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.15);color:#fff;font-size:12px;padding:6px 10px;border-radius:10px}
+    .btn{cursor:pointer;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);padding:6px 10px;border-radius:10px;color:#fff;font-size:12px}
+    .btn:active{transform:scale(.98)}
+    .toast{position:fixed;top:14px;left:50%;transform:translateX(-50%);padding:8px 12px;border-radius:10px;display:none;font-size:13px}
+    .touch{position:absolute;left:10px;bottom:10px;right:10px;display:flex;justify-content:space-between;pointer-events:none}
+    .dpad,.shoot{pointer-events:auto;display:grid;place-items:center;background:var(--glass);backdrop-filter:blur(6px);border:1px solid var(--glass2);border-radius:12px;color:#fff;box-shadow:0 8px 20px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.06)}
     .dpad{width:140px;height:140px;position:relative}
-    .dpad button{
-      position:absolute;width:44px;height:44px;border-radius:10px;border:1px solid var(--glass2);
-      background:rgba(255,255,255,.08);color:var(--fg);font-size:16px;
-      box-shadow:0 6px 16px rgba(0,0,0,.25);cursor:pointer;user-select:none
-    }
+    .dpad button{position:absolute;width:44px;height:44px;border-radius:10px;border:1px solid var(--glass2);background:rgba(255,255,255,.08);color:#fff;cursor:pointer}
     .dpad button:active{transform:scale(.96)}
-    .d-up{top:8px;left:48px}
-    .d-down{bottom:8px;left:48px}
-    .d-left{left:8px;top:48px}
-    .d-right{right:8px;top:48px}
-    .shoot{width:120px;height:120px;display:flex;align-items:center;justify-content:center;font-weight:700}
-    .shoot:active{transform:scale(.97)}
-    .shoot span{font-size:14px}
-    footer{
-      width:clamp(320px,94vw,1200px);display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;
-      color:var(--muted);font-size:12px;
-    }
-    .toast{
-      position:fixed;top:14px;left:50%;transform:translateX(-50%);
-      background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.3);color:#a7f3d0;
-      padding:8px 12px;border-radius:10px;font-size:13px;display:none
-    }
-    @media (max-width:640px){
-      .controls{display:none}
-      .hint{display:none}
-    }
+    .d-up{top:8px;left:48px}.d-down{bottom:8px;left:48px}.d-left{left:8px;top:48px}.d-right{right:8px;top:48px}
+    .shoot{width:120px;height:120px;font-weight:700}
+    @media(max-width:640px){.controls{display:none}}
   </style>
 </head>
 <body>
   <div class="wrap">
     <header>
-      <div class="brand">
-        <div class="badge">BJK</div>
-        <div class="title">Beşiktaş Sahası — Pro Futbol</div>
-      </div>
-      <div class="score">
-        Skor: <b id="score">0</b>
-        <span class="controls">• Yön: Ok tuşları/WASD • Şut: Space</span>
-      </div>
-      <div class="hint">Mobilde butonları kullan (sol yön, sağ şut)</div>
+      <div class="brand"><div class="badge">BJK</div><div class="title">Beşiktaş Sahası — 1P/2P Pro Futbol</div></div>
+      <div class="score">Skor: <b id="score">0 - 0</b><span class="controls">1P: WASD+Space • 2P: Ok+Enter • Mod değiş: aşağıdaki düğme</span></div>
     </header>
 
     <div class="panel">
       <div class="stage">
+        <div class="hud">
+          <div class="chip">Süre: <b id="time">00:00</b></div>
+          <div class="chip">Mod: <b id="modeLabel">1 Oyuncu</b></div>
+          <button id="toggleMode" class="btn" aria-label="Modu değiştir">Modu 2 Oyuncu Yap</button>
+        </div>
         <canvas id="game" width="1280" height="720" aria-label="Futbol sahası"></canvas>
 
-        <!-- Mobil için dokunmatik kontrol -->
+        <!-- Mobil kontrol -->
         <div class="touch" aria-hidden="true">
-          <div class="dpad" role="group" aria-label="Yön">
-            <button class="d-up" aria-label="Yukarı">▲</button>
-            <button class="d-down" aria-label="Aşağı">▼</button>
-            <button class="d-left" aria-label="Sol">◀</button>
-            <button class="d-right" aria-label="Sağ">▶</button>
+          <div class="dpad">
+            <button class="d-up">▲</button>
+            <button class="d-down">▼</button>
+            <button class="d-left">◀</button>
+            <button class="d-right">▶</button>
           </div>
-          <button class="shoot" aria-label="Şut">
-            <span>ŞUT</span>
-          </button>
+          <button class="shoot">ŞUT</button>
         </div>
       </div>
     </div>
 
     <footer>
-      <div>Gerçekçi saha çizgileri, akıllı kaleci, top fiziği ve şut.</div>
-      <div>Made with HTML + CSS + JS (Canvas/SVG)</div>
+      <div>Beşiktaş temalı: kartal animasyonu, taraftar & TD, iki takım iki kaleci.</div>
+      <div>İpuçları: 1P WASD/Space • 2P Ok/Enter • Kaleci her topu tutmaz.</div>
     </footer>
 
     <div id="toast" class="toast" role="status" aria-live="polite"></div>
   </div>
 
   <script>
-    // Oyun sabitleri (saha “metre”sini temsil eden mantıksal alan)
-    const FIELD_W = 120;  // genişlik
-    const FIELD_H = 80;   // yükseklik
-    const GOAL_W = 7.32;  // kale genişliği (yaklaşık)
-    const GOAL_H = 2.44;  // kullanılmadı, çizim stilize
-    const PENALTY_W = 40.3, PENALTY_H = 16.5; // ceza alanı yaklaşık
-    const BOX_W = 18.32, BOX_H = 5.5;         // altıpas
-    const CENTER_R = 9.15; // santra dairesi
-    const BALL_R = 0.6;    // top yarıçapı (yaklaşık)
-    const PLAYER_R = 1.2;
-    const GK_W = 1.2, GK_H = 3.6; // kaleci hitbox (dikey şerit gibi)
-    const FRICTION = 0.985;
-    const PLAYER_SPEED = 0.9;
-    const GK_SPEED = 1.0;
-    const SHOT_POWER = 8.5;  // şut gücü
-    const TIME_STEP = 1/60;
+    // =========================
+    // OPSİYONEL DIŞ GÖRSELLER
+    // index.html ile aynı klasöre bu adlarla koyarsanız otomatik kullanılır.
+    // Aksi halde vektör fallback çizilir.
+    const IMG_PATHS = {
+      eagle: 'bjk_eagle.png',
+      player_home: 'player_home.png',
+      player_away: 'player_away.png',
+      gk_home: 'gk_home.png',
+      gk_away: 'gk_away.png',
+      coach_home: 'coach_home.png',
+      coach_away: 'coach_away.png',
+      fans: 'fans.png'
+    };
+    const IMAGES = {};
+    function loadOptionalImage(key, src){
+      return new Promise(resolve=>{
+        const img = new Image();
+        img.onload = ()=>{ IMAGES[key] = img; resolve(true); };
+        img.onerror = ()=>{ resolve(false); };
+        img.src = src;
+      });
+    }
+    // =========================
 
-    // Canvas ve ölçek
+    // Saha boyutları (metrik benzer, stilize)
+    const FIELD_W = 120, FIELD_H = 80;
+    const GOAL_W = 7.32, CENTER_R = 9.15;
+    const PENALTY_W = 40.3, PENALTY_H = 16.5;
+    const BOX_W = 18.32, BOX_H = 5.5;
+
+    // Fizik & hızlar
+    const TIME_STEP = 1/60;
+    const FRICTION = 0.985;
+    const PLAYER_SPEED = 1.15;
+    const SHOT_POWER = 9.2;
+    const GK_SPEED = 1.05;
+    const BALL_R = 0.6; const PLAYER_R = 1.2;
+
     const canvas = document.getElementById('game');
     const ctx = canvas.getContext('2d');
+    let scale = 8;
 
-    function fitCanvas(){
-      // 16:9 hedef; yine de konteyner içi %100 genişlikte otomatik ayarlanıyor.
-      // Burada sadece piksel oranına göre çizimde kullandığımız scale’i hazırlıyoruz.
-      const rect = canvas.getBoundingClientRect();
-      pixelScale = rect.width / canvas.width;
-    }
-    let pixelScale = 1;
-    window.addEventListener('resize', fitCanvas);
-    fitCanvas();
-
-    // Dünya -> piksel dönüşümleri
-    let scale = 8; // 1 “metre” = 8 piksel (720p için)
     function toPxX(x){ return (canvas.width/2) + (x - FIELD_W/2)*scale; }
     function toPxY(y){ return (canvas.height/2) + (y - FIELD_H/2)*scale; }
+    function clamp(v,min,max){ return Math.max(min, Math.min(max, v)); }
 
-    // Oyun durumu
     const state = {
-      score: 0,
-      player: { x: 20, y: FIELD_H/2, vx: 0, vy: 0 },
-      ball:   { x: 28, y: FIELD_H/2, vx: 0, vy: 0 },
-      gk:     { x: FIELD_W-2, y: FIELD_H/2, vy: 0, dive: 0, cooldown: 0 },
-      keys:   { up:false, down:false, left:false, right:false, shoot:false },
-      lastShot: 0
+      time: 0, // saniye
+      scoreHome: 0, scoreAway: 0,
+      modeTwoPlayers: false,
+      // oyuncular: home (BJK), away
+      home: {
+        player: { x: 24, y: FIELD_H/2, vx:0, vy:0 },
+        gk:     { x: 2.5, y: FIELD_H/2, dive:0, cooldown:0 }
+      },
+      away: {
+        player: { x: FIELD_W-24, y: FIELD_H/2, vx:0, vy:0 },
+        gk:     { x: FIELD_W-2.5, y: FIELD_H/2, dive:0, cooldown:0 }
+      },
+      ball: { x: FIELD_W/2, y: FIELD_H/2, vx:0, vy:0 },
+      keys: { p1:{up:false,down:false,left:false,right:false,shoot:false}, p2:{up:false,down:false,left:false,right:false,shoot:false} },
+      lastShotP1:0, lastShotP2:0,
+      eagle:{ x:-60, y:20, speed:0.25 },
+      crowdWave:0
     };
-
-    // Yardımcı: kısıtlama
-    function clamp(v, min, max){ return Math.max(min, Math.min(max, v)); }
 
     // Klavye
     window.addEventListener('keydown', e=>{
-      if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '].includes(e.key)) e.preventDefault();
-      if(e.key==='ArrowUp' || e.key==='w') state.keys.up = true;
-      if(e.key==='ArrowDown' || e.key==='s') state.keys.down = true;
-      if(e.key==='ArrowLeft' || e.key==='a') state.keys.left = true;
-      if(e.key==='ArrowRight' || e.key==='d') state.keys.right = true;
-      if(e.key===' ') state.keys.shoot = true;
+      if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' ','Enter'].includes(e.key)) e.preventDefault();
+      // 1P: WASD + Space
+      if(e.key==='w'||e.key==='W') state.keys.p1.up=true;
+      if(e.key==='s'||e.key==='S') state.keys.p1.down=true;
+      if(e.key==='a'||e.key==='A') state.keys.p1.left=true;
+      if(e.key==='d'||e.key==='D') state.keys.p1.right=true;
+      if(e.key===' ') state.keys.p1.shoot=true;
+      // 2P: Arrows + Enter
+      if(e.key==='ArrowUp') state.keys.p2.up=true;
+      if(e.key==='ArrowDown') state.keys.p2.down=true;
+      if(e.key==='ArrowLeft') state.keys.p2.left=true;
+      if(e.key==='ArrowRight') state.keys.p2.right=true;
+      if(e.key==='Enter') state.keys.p2.shoot=true;
     });
     window.addEventListener('keyup', e=>{
-      if(e.key==='ArrowUp' || e.key==='w') state.keys.up = false;
-      if(e.key==='ArrowDown' || e.key==='s') state.keys.down = false;
-      if(e.key==='ArrowLeft' || e.key==='a') state.keys.left = false;
-      if(e.key==='ArrowRight' || e.key==='d') state.keys.right = false;
-      if(e.key===' ') state.keys.shoot = false;
+      if(e.key==='w'||e.key==='W') state.keys.p1.up=false;
+      if(e.key==='s'||e.key==='S') state.keys.p1.down=false;
+      if(e.key==='a'||e.key==='A') state.keys.p1.left=false;
+      if(e.key==='d'||e.key==='D') state.keys.p1.right=false;
+      if(e.key===' ') state.keys.p1.shoot=false;
+      if(e.key==='ArrowUp') state.keys.p2.up=false;
+      if(e.key==='ArrowDown') state.keys.p2.down=false;
+      if(e.key==='ArrowLeft') state.keys.p2.left=false;
+      if(e.key==='ArrowRight') state.keys.p2.right=false;
+      if(e.key==='Enter') state.keys.p2.shoot=false;
     });
 
-    // Mobil butonlar
-    const btnUp = document.querySelector('.d-up');
-    const btnDown = document.querySelector('.d-down');
-    const btnLeft = document.querySelector('.d-left');
-    const btnRight = document.querySelector('.d-right');
-    const btnShoot = document.querySelector('.shoot');
-    function bindHold(btn, key){
-      const setTrue = ()=> (state.keys[key]=true);
-      const setFalse= ()=> (state.keys[key]=false);
-      btn.addEventListener('touchstart', (e)=>{e.preventDefault(); setTrue();});
-      btn.addEventListener('touchend',   (e)=>{e.preventDefault(); setFalse();});
-      btn.addEventListener('mousedown', setTrue);
-      btn.addEventListener('mouseup', setFalse);
-      btn.addEventListener('mouseleave', setFalse);
+    // Mobil
+    function bindHold(btn, target, key){
+      const on = ()=>target[key]=true, off=()=>target[key]=false;
+      btn.addEventListener('touchstart', e=>{e.preventDefault(); on();});
+      btn.addEventListener('touchend', e=>{e.preventDefault(); off();});
+      btn.addEventListener('mousedown', on); btn.addEventListener('mouseup', off); btn.addEventListener('mouseleave', off);
     }
-    bindHold(btnUp,'up'); bindHold(btnDown,'down'); bindHold(btnLeft,'left'); bindHold(btnRight,'right');
-    bindHold(btnShoot,'shoot');
+    bindHold(document.querySelector('.d-up'), state.keys.p1, 'up');
+    bindHold(document.querySelector('.d-down'), state.keys.p1, 'down');
+    bindHold(document.querySelector('.d-left'), state.keys.p1, 'left');
+    bindHold(document.querySelector('.d-right'), state.keys.p1, 'right');
+    bindHold(document.querySelector('.shoot'), state.keys.p1, 'shoot');
 
-    // Basit toast
-    const toastEl = document.getElementById('toast');
-    let toastTimer=0;
-    function toast(msg, color='ok'){
+    // Mod düğmesi
+    const modeLabel = document.getElementById('modeLabel');
+    document.getElementById('toggleMode').onclick = ()=>{
+      state.modeTwoPlayers = !state.modeTwoPlayers;
+      modeLabel.textContent = state.modeTwoPlayers ? '2 Oyuncu' : '1 Oyuncu';
+      document.getElementById('toggleMode').textContent = state.modeTwoPlayers ? 'Modu 1 Oyuncu Yap' : 'Modu 2 Oyuncu Yap';
+    };
+
+    // Toast
+    const toastEl = document.getElementById('toast'); let toastTimer=0;
+    function toast(message, type='ok'){
       toastEl.style.display='block';
-      toastEl.textContent=msg;
-      toastEl.style.background = color==='ok' ? 'rgba(34,197,94,.1)' : 'rgba(239,68,68,.1)';
-      toastEl.style.borderColor = color==='ok' ? 'rgba(34,197,94,.3)' : 'rgba(239,68,68,.3)';
-      toastEl.style.color = color==='ok' ? '#a7f3d0' : '#fecaca';
-      clearTimeout(toastTimer);
-      toastTimer=setTimeout(()=>toastEl.style.display='none', 1600);
+      toastEl.textContent = message;
+      toastEl.style.background = type==='ok' ? 'rgba(34,197,94,.1)' : 'rgba(239,68,68,.1)';
+      toastEl.style.border = '1px solid ' + (type==='ok' ? 'rgba(34,197,94,.3)' : 'rgba(239,68,68,.3)');
+      toastEl.style.color = type==='ok' ? '#a7f3d0' : '#fecaca';
+      clearTimeout(toastTimer); toastTimer=setTimeout(()=>toastEl.style.display='none',1400);
     }
 
-    // Fizik ve mantık
-    function step(){
-      // Oyuncu hareketi
-      let ax = 0, ay = 0;
-      if(state.keys.up) ay -= PLAYER_SPEED;
-      if(state.keys.down) ay += PLAYER_SPEED;
-      if(state.keys.left) ax -= PLAYER_SPEED;
-      if(state.keys.right) ax += PLAYER_SPEED;
-      state.player.x = clamp(state.player.x + ax*TIME_STEP*60, 2, FIELD_W-2);
-      state.player.y = clamp(state.player.y + ay*TIME_STEP*60, 2, FIELD_H-2);
+    // Oyun akışı
+    function movePlayer(p, keys){
+      let ax=0, ay=0;
+      if(keys.up) ay -= PLAYER_SPEED;
+      if(keys.down) ay += PLAYER_SPEED;
+      if(keys.left) ax -= PLAYER_SPEED;
+      if(keys.right) ax += PLAYER_SPEED;
+      p.x = clamp(p.x + ax*TIME_STEP*60, 1.8, FIELD_W-1.8);
+      p.y = clamp(p.y + ay*TIME_STEP*60, 1.8, FIELD_H-1.8);
+    }
 
-      // Şut: top dağın yakınındaysa ve Space/ŞUT basıldıysa, topu kaleye doğru hızlandır
-      if(state.keys.shoot && (performance.now()-state.lastShot>280)){
-        const dx = state.ball.x - state.player.x;
-        const dy = state.ball.y - state.player.y;
-        const dist = Math.hypot(dx,dy);
-        if(dist < 3.0){
-          // Hedef: kalenin ortası civarı (sağ kale)
-          const targetX = FIELD_W; // çizgi dışına doğru güçlü vuruş
-          const targetY = state.ball.y + (Math.random()*6 - 3); // az rastgelelik
-          let vx = (targetX - state.ball.x), vy = (targetY - state.ball.y);
-          const len = Math.hypot(vx,vy)||1;
-          vx/=len; vy/=len;
-          const power = SHOT_POWER*(0.8+Math.random()*0.4);
-          state.ball.vx = vx*power;
-          state.ball.vy = vy*power;
-          state.lastShot = performance.now();
+    function shootIfPossible(shooter, keys, lastShotRef){
+      if(!keys.shoot) return false;
+      const now = performance.now();
+      if(now - state[lastShotRef] < 260) return false;
+      const dx = state.ball.x - shooter.x, dy = state.ball.y - shooter.y;
+      const dist = Math.hypot(dx,dy);
+      if(dist < 3.2){
+        // hedef: rakip kale orta
+        const isHomeShooter = (shooter===state.home.player);
+        const targetX = isHomeShooter ? FIELD_W+1 : -1;
+        const targetY = state.ball.y + (Math.random()*6 - 3);
+        let vx = (targetX - state.ball.x), vy = (targetY - state.ball.y);
+        const len = Math.hypot(vx,vy)||1; vx/=len; vy/=len;
+        const power = SHOT_POWER*(0.85 + Math.random()*0.35);
+        state.ball.vx = vx*power; state.ball.vy = vy*power;
+        state[lastShotRef] = now;
+        return true;
+      }
+      return false;
+    }
+
+    function dribblePush(player){
+      const dx = state.ball.x - player.x, dy = state.ball.y - player.y, dist = Math.hypot(dx,dy);
+      const minDist = BALL_R + PLAYER_R*0.9;
+      if(dist < minDist){
+        const nx = dx/(dist||1), ny = dy/(dist||1); const push = (minDist - dist) * 0.55;
+        state.ball.x += nx*push; state.ball.y += ny*push;
+        state.ball.vx += nx*0.35; state.ball.vy += ny*0.35;
+      }
+    }
+
+    function stepGK(gk, team){
+      // gk kale üzerinde dikey takip, biraz gecikme ve dive (rastgele yan atlama)
+      const goalTop = FIELD_H/2 - GOAL_W/2, goalBot = FIELD_H/2 + GOAL_W/2;
+      const goalX = (team==='home') ? 1.5 : FIELD_W-1.5;
+      const dy = state.ball.y - gk.y; const follow = clamp(dy, -GK_SPEED, GK_SPEED);
+      gk.y = clamp(gk.y + follow*TIME_STEP*60, goalTop+1.2, goalBot-1.2);
+      // top ceza sahasına yaklaşınca dive denemesi (her zaman değil)
+      if(gk.cooldown>0) gk.cooldown -= TIME_STEP; else gk.cooldown=0;
+      const near = team==='home' ? (state.ball.x < 18) : (state.ball.x > FIELD_W-18);
+      if(near && gk.cooldown<=0 && Math.random()<0.35){
+        gk.dive = (Math.random()<0.5? -1:1) * (0.6+Math.random()*0.8);
+        gk.cooldown = 1.15;
+      } else {
+        gk.dive *= 0.92;
+      }
+      gk.x = goalX + gk.dive;
+      // Çarpışma (kaleci şeridi)
+      const gkW=1.2, gkH=3.8;
+      const left=gk.x-gkW/2, right=gk.x+gkW/2, top=gk.y-gkH/2, bot=gk.y+gkH/2;
+      if(state.ball.x+BALL_R>left && state.ball.x-BALL_R<right && state.ball.y+BALL_R>top && state.ball.y-BALL_R<bot){
+        // her zaman tutma: HAYIR → bazen sektir, bazen “tutar gibi” ama elinden kaçır
+        if(Math.random()<0.65){
+          // kurtarış
+          state.ball.x += (team==='home'? +1 : -1)*1.2;
+          state.ball.vx = -state.ball.vx*0.55 + (Math.random()*2-1)*0.8;
+          state.ball.vy = -state.ball.vy*0.2 + (Math.random()*2-1)*0.8;
+          toast('Kurtarış! 🧤','bad');
+        }else{
+          // elinden sekip kale içine gidebilir
+          state.ball.vx *= 0.65; state.ball.vy *= 0.65;
         }
       }
+    }
 
-      // Top ile oyuncu temel itiş (topa sürme hissi)
-      {
-        const dx = state.ball.x - state.player.x;
-        const dy = state.ball.y - state.player.y;
-        const dist = Math.hypot(dx,dy);
-        const minDist = BALL_R + PLAYER_R*0.9;
-        if(dist < minDist){
-          const nx = dx/(dist||1), ny = dy/(dist||1);
-          const push = (minDist - dist) * 0.6;
-          state.ball.x += nx*push;
-          state.ball.y += ny*push;
-          state.ball.vx += nx*0.4;
-          state.ball.vy += ny*0.4;
-        }
-      }
-
-      // Top fiziği
-      state.ball.vx *= FRICTION;
-      state.ball.vy *= FRICTION;
+    function stepBall(){
+      state.ball.vx *= FRICTION; state.ball.vy *= FRICTION;
       state.ball.x += state.ball.vx*TIME_STEP*60;
       state.ball.y += state.ball.vy*TIME_STEP*60;
 
-      // Saha sınırları (yan çizgilerden sekme)
-      if(state.ball.x < BALL_R){ state.ball.x = BALL_R; state.ball.vx = -state.ball.vx*0.5; }
-      if(state.ball.x > FIELD_W-BALL_R){ state.ball.x = FIELD_W-BALL_R; state.ball.vx = -state.ball.vx*0.5; }
-      if(state.ball.y < BALL_R){ state.ball.y = BALL_R; state.ball.vy = -state.ball.vy*0.5; }
-      if(state.ball.y > FIELD_H-BALL_R){ state.ball.y = FIELD_H-BALL_R; state.ball.vy = -state.ball.vy*0.5; }
+      // yan çizgi sekmesi
+      if(state.ball.y < BALL_R){ state.ball.y=BALL_R; state.ball.vy = -state.ball.vy*0.45; }
+      if(state.ball.y > FIELD_H-BALL_R){ state.ball.y=FIELD_H-BALL_R; state.ball.vy = -state.ball.vy*0.45; }
+      if(state.ball.x < BALL_R){ state.ball.x=BALL_R; state.ball.vx = -state.ball.vx*0.45; }
+      if(state.ball.x > FIELD_W-BALL_R){ state.ball.x=FIELD_W-BALL_R; state.ball.vx = -state.ball.vx*0.45; }
+    }
 
-      // Kaleci AI: topun y’sini takip et, ceza alanındayken daha agresif
-      const goalX = FIELD_W-1.5;
-      const dyToBall = state.ball.y - state.gk.y;
-      const trackSpeed = Math.abs(dyToBall) > 0.5 ? GK_SPEED : GK_SPEED*0.4;
-      state.gk.y += clamp(dyToBall, -trackSpeed, trackSpeed)*TIME_STEP*60;
-
-      // Kaleci sınırı (kale dikey aralığı)
-      const goalTop = FIELD_H/2 - GOAL_W/2;
-      const goalBot = FIELD_H/2 + GOAL_W/2;
-      state.gk.y = clamp(state.gk.y, goalTop+GK_H/2, goalBot-GK_H/2);
-
-      // Kaleci “refleks”: top ceza alanına hızla girerse ufak bir yatay hamle (dive)
-      if(state.gk.cooldown>0) state.gk.cooldown -= TIME_STEP;
-      if(state.ball.x > FIELD_W - 18 && state.gk.cooldown<=0){
-        state.gk.dive = (Math.random()<0.5? -1: 1) * (0.3+Math.random()*0.7);
-        state.gk.cooldown = 1.2;
-      } else {
-        state.gk.dive *= 0.92;
+    function checkGoal(){
+      const goalTop = FIELD_H/2 - GOAL_W/2, goalBot = FIELD_H/2 + GOAL_W/2;
+      if(state.ball.x > FIELD_W+0.5 && state.ball.y>goalTop && state.ball.y<goalBot){
+        // home gol attı
+        state.scoreHome++;
+        resetAfterGoal('home');
       }
-      state.gk.x = goalX + state.gk.dive;
-
-      // Kaleci-top çarpışması
-      const gkLeft = state.gk.x - GK_W/2, gkRight = state.gk.x + GK_W/2;
-      const gkTop = state.gk.y - GK_H/2, gkBot = state.gk.y + GK_H/2;
-      if(state.ball.x+BALL_R > gkLeft && state.ball.x-BALL_R < gkRight &&
-         state.ball.y+BALL_R > gkTop  && state.ball.y-BALL_R < gkBot){
-        // çarpışma: topu geri sektir
-        const overlapX = (state.ball.vx>0) ? (state.ball.x+BALL_R - gkLeft) : (gkRight - (state.ball.x-BALL_R));
-        state.ball.x += (state.ball.vx>0 ? -overlapX : overlapX)*0.6;
-        state.ball.vx = -Math.abs(state.ball.vx)*0.6 - 2.5; // sert geri
-        state.ball.vy += (Math.random()*1-0.5);
-        toast('Kurtarış! 🧤', 'bad');
-      }
-
-      // GOL kontrolü: top kale çizgisini geçti mi ve direk aralığında mı?
-      const goalLineX = FIELD_W; // sağ çizgi
-      const withinPosts = (state.ball.y > goalTop && state.ball.y < goalBot);
-      const crossed = (state.ball.x > goalLineX + 0.5); // çizgiyi net geçti say
-      if(crossed && withinPosts){
-        state.score++;
-        document.getElementById('score').textContent = state.score.toString();
-        toast('GOOOOL! ⚽️', 'ok');
-        resetKickoff();
+      if(state.ball.x < -0.5 && state.ball.y>goalTop && state.ball.y<goalBot){
+        // away gol attı
+        state.scoreAway++;
+        resetAfterGoal('away');
       }
     }
 
-    function resetKickoff(){
-      state.player.x = 20; state.player.y = FIELD_H/2;
-      state.ball.x = 28;   state.ball.y = FIELD_H/2; state.ball.vx = 0; state.ball.vy = 0;
-      state.gk.x = FIELD_W-2; state.gk.y = FIELD_H/2; state.gk.vy=0; state.gk.dive=0; state.gk.cooldown=0.6;
+    function resetAfterGoal(who){
+      document.getElementById('score').textContent = `${state.scoreHome} - ${state.scoreAway}`;
+      toast(who==='home' ? 'Beşiktaş GOOOL! ⚽️' : 'Rakip gol attı!','ok');
+      // santra
+      state.ball.x=FIELD_W/2; state.ball.y=FIELD_H/2; state.ball.vx=0; state.ball.vy=0;
+      state.home.player.x=24; state.home.player.y=FIELD_H/2;
+      state.away.player.x=FIELD_W-24; state.away.player.y=FIELD_H/2;
+      state.home.gk.x=2.5; state.home.gk.y=FIELD_H/2; state.home.gk.dive=0; state.home.gk.cooldown=0.8;
+      state.away.gk.x=FIELD_W-2.5; state.away.gk.y=FIELD_H/2; state.away.gk.dive=0; state.away.gk.cooldown=0.8;
     }
 
-    // Çizim: Saha, BJK arkaplan, oyuncular
-    function draw(){
-      // Arka plan (sahte cam/gradient)
-      ctx.clearRect(0,0,canvas.width,canvas.height);
-      const grd = ctx.createLinearGradient(0,0,0,canvas.height);
-      grd.addColorStop(0,'#0a4d2a');
-      grd.addColorStop(1,'#0b3b24');
-      ctx.fillStyle = grd;
-      ctx.fillRect(0,0,canvas.width,canvas.height);
-
-      // Çim çizgileri
-      const stripeH = (FIELD_H*scale)/10;
-      for(let i=0;i<10;i++){
-        ctx.fillStyle = i%2===0 ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.02)';
-        ctx.fillRect(0, i*stripeH + (canvas.height/2 - FIELD_H*scale/2), canvas.width, stripeH);
-      }
-
-      // BJK Logo (stilize): arkada büyük, yarı saydam
-      drawBJKLogo(canvas.width*0.18, canvas.height*0.24, 180, 0.06);
-
-      // Saha çizgileri (beyaz)
-      ctx.strokeStyle = 'rgba(255,255,255,0.85)';
-      ctx.lineWidth = 2;
-
-      // Dış sınır
-      rectOutline(
-        toPxX(0), toPxY(0),
-        FIELD_W*scale, FIELD_H*scale
-      );
-
-      // Orta çizgi
-      line(
-        toPxX(FIELD_W/2), toPxY(0),
-        toPxX(FIELD_W/2), toPxY(FIELD_H)
-      );
-
-      // Santra dairesi
-      circle(toPxX(FIELD_W/2), toPxY(FIELD_H/2), CENTER_R*scale);
-
-      // Ceza alanları ve altıpas (sol ve sağ)
-      // Sağ taraf (kaleci tarafı)
-      rectOutline(toPxX(FIELD_W-PENALTY_H), toPxY(FIELD_H/2-PENALTY_W/2), PENALTY_H*scale, PENALTY_W*scale);
-      rectOutline(toPxX(FIELD_W-BOX_H), toPxY(FIELD_H/2-BOX_W/2), BOX_H*scale, BOX_W*scale);
-      // Sol taraf
-      rectOutline(toPxX(0), toPxY(FIELD_H/2-PENALTY_W/2), PENALTY_H*scale, PENALTY_W*scale);
-      rectOutline(toPxX(0), toPxY(FIELD_H/2-BOX_W/2), BOX_H*scale, BOX_W*scale);
-
-      // Kale çizimleri (stilize beyaz)
-      // Sağ
-      ctx.save();
-      ctx.strokeStyle='rgba(255,255,255,.9)'; ctx.lineWidth=3;
-      rectOutline(toPxX(FIELD_W), toPxY(FIELD_H/2-GOAL_W/2), 10, GOAL_W*scale);
-      ctx.restore();
-      // Sol
-      ctx.save();
-      rectOutline(toPxX(-10/scale), toPxY(FIELD_H/2-GOAL_W/2), 10, GOAL_W*scale);
-      ctx.restore();
-
-      // Oyuncu (siyah-beyaz forma, küçük gölge)
-      drawPlayer(state.player.x, state.player.y);
-
-      // Kaleci (parlak renk)
-      drawGoalkeeper(state.gk.x, state.gk.y);
-
-      // Top
-      drawBall(state.ball.x, state.ball.y);
+    // Kartal animasyonu (arka fon)
+    function stepEagle(){
+      state.eagle.x += state.eagle.speed;
+      if(state.eagle.x > FIELD_W+60) { state.eagle.x = -60; state.eagle.y = 12 + Math.random()*16; }
     }
 
-    // Basit primitives
-    function rectOutline(x,y,w,h){ ctx.strokeRect(x,y,w,h); }
-    function line(x1,y1,x2,y2){
-      ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
-    }
-    function circle(cx,cy,r){
-      ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.stroke();
-    }
-
-    function drawBall(bx,by){
-      const x = toPxX(bx), y = toPxY(by), r = BALL_R*scale;
-      // gölge
-      ctx.fillStyle='rgba(0,0,0,.3)';
-      ctx.beginPath(); ctx.ellipse(x+3,y+5,r*1.1,r*0.7,0,0,Math.PI*2); ctx.fill();
-      // gövde
-      const g = ctx.createRadialGradient(x-4,y-6, r*0.2, x,y, r);
-      g.addColorStop(0,'#fff');
-      g.addColorStop(1,'#c6d0d9');
-      ctx.fillStyle = g;
-      ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2); ctx.fill();
-      ctx.strokeStyle='rgba(0,0,0,.25)'; ctx.lineWidth=1;
-      ctx.stroke();
-
-      // altıgen benzeri parçalar (stilize)
-      ctx.strokeStyle='rgba(0,0,0,.35)';
-      ctx.beginPath();
-      for(let i=0;i<6;i++){
-        const a = i*(Math.PI/3);
-        ctx.moveTo(x,y);
-        ctx.lineTo(x+Math.cos(a)*r, y+Math.sin(a)*r);
-      }
-      ctx.stroke();
-    }
-
-    function drawPlayer(px,py){
-      const x = toPxX(px), y = toPxY(py);
-      // gölge
-      ctx.fillStyle='rgba(0,0,0,.35)';
-      ctx.beginPath(); ctx.ellipse(x+4,y+10,PLAYER_R*scale*1.2,PLAYER_R*scale*0.6,0,0,Math.PI*2); ctx.fill();
-      // vücut
-      const r = PLAYER_R*scale;
-      // forma: siyah-beyaz çizgili
-      const grd = ctx.createLinearGradient(x-r, y-r, x+r, y+r);
-      grd.addColorStop(0,'#111'); grd.addColorStop(0.5,'#f7f7f7'); grd.addColorStop(1,'#111');
-      ctx.fillStyle = grd;
-      ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2); ctx.fill();
-      ctx.strokeStyle='rgba(255,255,255,.6)'; ctx.lineWidth=1;
-      ctx.stroke();
-
-      // kafa
-      ctx.fillStyle='#f7e7da';
-      ctx.beginPath(); ctx.arc(x, y - r*0.9, r*0.45, 0, Math.PI*2); ctx.fill();
-
-      // kol bacak (stilize çizgiler)
-      ctx.strokeStyle='rgba(255,255,255,.8)'; ctx.lineWidth=2;
-      ctx.beginPath();
-      ctx.moveTo(x - r*0.8, y); ctx.lineTo(x + r*0.8, y); // kollar
-      ctx.moveTo(x - r*0.4, y + r*0.8); ctx.lineTo(x, y + r*1.4); // bacak 1
-      ctx.moveTo(x + r*0.4, y + r*0.8); ctx.lineTo(x + r*0.2, y + r*1.6); // bacak 2
-      ctx.stroke();
-    }
-
-    function drawGoalkeeper(gx,gy){
-      const x = toPxX(gx), y = toPxY(gy);
-      const w = GK_W*scale, h = GK_H*scale;
-      // gölge
-      ctx.fillStyle='rgba(0,0,0,.35)';
-      ctx.beginPath(); ctx.ellipse(x+3,y+10,w*0.7,h*0.25,0,0,Math.PI*2); ctx.fill();
-      // gövde (parlak yeşil)
-      const g = ctx.createLinearGradient(x-w/2, y-h/2, x+w/2, y+h/2);
-      g.addColorStop(0,'#10b981');
-      g.addColorStop(1,'#34d399');
-      ctx.fillStyle=g;
-      roundRect(x-w/2, y-h/2, w, h, 6, true);
-      ctx.strokeStyle='rgba(255,255,255,.7)'; ctx.stroke();
-
-      // eldivenler (minik daireler)
-      ctx.fillStyle='#22c55e';
-      ctx.beginPath(); ctx.arc(x - w*0.6, y, 5, 0, Math.PI*2); ctx.fill();
-      ctx.beginPath(); ctx.arc(x + w*0.6, y, 5, 0, Math.PI*2); ctx.fill();
-    }
-    function roundRect(x,y,w,h,r,fill){
-      ctx.beginPath();
-      ctx.moveTo(x+r, y);
-      ctx.arcTo(x+w, y, x+w, y+h, r);
-      ctx.arcTo(x+w, y+h, x, y+h, r);
-      ctx.arcTo(x, y+h, x, y, r);
-      ctx.arcTo(x, y, x+w, y, r);
-      if(fill) ctx.fill(); else ctx.stroke();
-    }
-
-    // Stilize BJK logosu (siyah-beyaz kalkan + BJK + 1903 yazı)
-    function drawBJKLogo(cx, cy, size, alpha=0.08){
-      ctx.save();
-      ctx.globalAlpha = alpha;
-      // kalkan
-      ctx.translate(cx, cy);
-      ctx.fillStyle='#000';
-      ctx.beginPath();
-      ctx.moveTo(0, -size*0.55);
-      ctx.lineTo(size*0.36, -size*0.3);
-      ctx.lineTo(size*0.36,  size*0.35);
-      ctx.lineTo(0,          size*0.55);
-      ctx.lineTo(-size*0.36, size*0.35);
-      ctx.lineTo(-size*0.36,-size*0.3);
-      ctx.closePath(); ctx.fill();
-
-      // dikey siyah-beyaz şeritler
-      const stripeW = size*0.12;
-      for(let i=-2;i<=2;i++){
-        ctx.fillStyle = (i%2===0)? '#fff':'#000';
-        ctx.fillRect(i*stripeW - stripeW/2, -size*0.42, stripeW, size*0.84);
-      }
-
-      // “BJK” yazısı
-      ctx.fillStyle='#000';
-      ctx.globalCompositeOperation='source-atop';
-      ctx.fillRect(-size*0.5,-size*0.5,size,size); // koyuluk
-      ctx.globalCompositeOperation='source-over';
-      ctx.fillStyle='#fff';
-      ctx.font = `bold ${Math.floor(size*0.22)}px Segoe UI, Arial`;
-      ctx.textAlign='center'; ctx.textBaseline='middle';
-      ctx.fillText('BJK', 0, -size*0.06);
-
-      // 1903
-      ctx.font = `bold ${Math.floor(size*0.16)}px Segoe UI, Arial`;
-      ctx.fillText('1903', 0, size*0.22);
-
-      ctx.restore();
+    // Taraftar “dalga”
+    function stepCrowd(){
+      state.crowdWave += 0.02;
     }
 
     // Oyun döngüsü
-    let last = 0;
+    let lastTs=0;
     function loop(ts){
-      const dt = (ts-last)/1000 || 0; last = ts;
-      // (dt kullanılabilir ama TIME_STEP sabit tutuyoruz)
-      step();
-      draw();
+      const dt = (ts-lastTs)/1000 || 0; lastTs=ts;
+      state.time += dt;
+      document.getElementById('time').textContent = formatTime(state.time);
+
+      // Oyuncu hareketleri
+      movePlayer(state.home.player, state.keys.p1);
+      if(state.modeTwoPlayers){
+        movePlayer(state.away.player, state.keys.p2);
+      }else{
+        // 1P modda AI ile away oyuncu topa yaklaşsın
+        const dx = state.ball.x - state.away.player.x, dy = state.ball.y - state.away.player.y;
+        const len = Math.hypot(dx,dy)||1; const sp = PLAYER_SPEED*0.8;
+        state.away.player.x += (dx/len)*sp*TIME_STEP*60;
+        state.away.player.y += (dy/len)*sp*TIME_STEP*60;
+        // sınırlama
+        state.away.player.x = clamp(state.away.player.x, 1.8, FIELD_W-1.8);
+        state.away.player.y = clamp(state.away.player.y, 1.8, FIELD_H-1.8);
+      }
+
+      // Şut (her oyuncu için)
+      shootIfPossible(state.home.player, state.keys.p1, 'lastShotP1');
+      if(state.modeTwoPlayers){
+        shootIfPossible(state.away.player, state.keys.p2, 'lastShotP2');
+      }else{
+        // 1P modda AI bazen şut çeksin
+        if(Math.random()<0.01){
+          state.keys.p2.shoot = true;
+          shootIfPossible(state.away.player, state.keys.p2, 'lastShotP2');
+          state.keys.p2.shoot = false;
+        }
+      }
+
+      // Drippling/temas
+      dribblePush(state.home.player);
+      dribblePush(state.away.player);
+
+      // Kaleciler
+      stepGK(state.home.gk, 'home');
+      stepGK(state.away.gk, 'away');
+
+      // Top
+      stepBall();
+      checkGoal();
+
+      // Kartal & taraftar anim
+      stepEagle();
+      stepCrowd();
+
+      // Çizim
+      drawScene();
+
       requestAnimationFrame(loop);
     }
-    resetKickoff();
-    requestAnimationFrame(loop);
+
+    function formatTime(s){
+      const m = Math.floor(s/60), r = Math.floor(s%60);
+      return `${String(m).padStart(2,'0')}:${String(r).padStart(2,'0')}`;
+    }
+
+    // =============== ÇİZİM ===============
+    function drawScene(){
+      // arka zemin
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      const grd = ctx.createLinearGradient(0,0,0,canvas.height);
+      grd.addColorStop(0,'#0a4d2a'); grd.addColorStop(1,'#0b3b24');
+      ctx.fillStyle=grd; ctx.fillRect(0,0,canvas.width,canvas.height);
+
+      // tribün/stadyum sınırı
+      drawStands();
+
+      // çim desenleri
+      const stripeH = (FIELD_H*scale)/10;
+      for(let i=0;i<10;i++){
+        ctx.fillStyle = i%2===0?'rgba(255,255,255,.02)':'rgba(0,0,0,.02)';
+        ctx.fillRect(0, i*stripeH + (canvas.height/2 - FIELD_H*scale/2), canvas.width, stripeH);
+      }
+
+      // kartal (arka, yarı saydam)
+      drawEagle(toPxX(state.eagle.x), toPxY(state.eagle.y), 140, 0.08);
+
+      // saha çizgileri
+      ctx.strokeStyle='rgba(255,255,255,.9)'; ctx.lineWidth=2;
+      // dış sınır
+      ctx.strokeRect(toPxX(0),toPxY(0), FIELD_W*scale, FIELD_H*scale);
+      // orta çizgi
+      line(toPxX(FIELD_W/2),toPxY(0), toPxX(FIELD_W/2),toPxY(FIELD_H));
+      // santra
+      circle(toPxX(FIELD_W/2), toPxY(FIELD_H/2), CENTER_R*scale);
+      // ceza sahaları ve altıpas
+      // sağ
+      ctx.strokeRect(toPxX(FIELD_W-PENALTY_H), toPxY(FIELD_H/2-PENALTY_W/2), PENALTY_H*scale, PENALTY_W*scale);
+      ctx.strokeRect(toPxX(FIELD_W-BOX_H), toPxY(FIELD_H/2-BOX_W/2), BOX_H*scale, BOX_W*scale);
+      // sol
+      ctx.strokeRect(toPxX(0), toPxY(FIELD_H/2-PENALTY_W/2), PENALTY_H*scale, PENALTY_W*scale);
+      ctx.strokeRect(toPxX(0), toPxY(FIELD_H/2-BOX_W/2), BOX_H*scale, BOX_W*scale);
+      // kaleler
+      ctx.save(); ctx.lineWidth=3;
+      ctx.strokeRect(toPxX(FIELD_W), toPxY(FIELD_H/2-GOAL_W/2), 10, GOAL_W*scale);
+      ctx.strokeRect(toPxX(-10/scale), toPxY(FIELD_H/2-GOAL_W/2), 10, GOAL_W*scale);
+      ctx.restore();
+
+      // teknik direktörler (kenar çizgisinde silüet/opsiyonel görsel)
+      drawCoach('home', toPxX(6), toPxY(FIELD_H+2));
+      drawCoach('away', toPxX(FIELD_W-6), toPxY(FIELD_H+2));
+
+      // oyuncular
+      drawPlayer('home', state.home.player.x, state.home.player.y);
+      drawPlayer('away', state.away.player.x, state.away.player.y);
+
+      // kaleciler
+      drawKeeper('home', state.home.gk.x, state.home.gk.y);
+      drawKeeper('away', state.away.gk.x, state.away.gk.y);
+
+      // top
+      drawBall(state.ball.x, state.ball.y);
+    }
+
+    function drawStands(){
+      const top = toPxY(0) - 80;
+      const left = toPxX(0)-40, right=toPxX(FIELD_W)+40;
+      // tribün kutusu
+      ctx.fillStyle='rgba(0,0,0,.45)'; ctx.fillRect(left, top, right-left, 70);
+      // taraftar (opsiyonel görsel, yoksa silüet dalgası)
+      if(IMAGES.fans){
+        // pattern halinde
+        const img = IMAGES.fans;
+        const w = img.width, h = img.height, y = top+5;
+        for(let x=left; x<right; x+=w){
+          ctx.drawImage(img, x, y, w, h);
+        }
+      }else{
+        // basit silüetler
+        const rows = 3, cols = 40;
+        for(let r=0;r<rows;r++){
+          for(let c=0;c<cols;c++){
+            const x = left+20 + c*((right-left-40)/cols);
+            const y = top+10 + r*18 + Math.sin(state.crowdWave + c*0.3 + r)*2;
+            ctx.fillStyle='rgba(255,255,255,.08)';
+            ctx.beginPath(); ctx.arc(x, y, 6, 0, Math.PI*2); ctx.fill(); // kafa
+            ctx.fillRect(x-8, y+4, 16, 8); // gövde
+          }
+        }
+      }
+    }
+
+    function drawEagle(x,y,size,alpha){
+      if(IMAGES.eagle){
+        ctx.save(); ctx.globalAlpha=alpha+0.1; ctx.drawImage(IMAGES.eagle, x-size/2, y-size/2, size, size*0.7); ctx.restore();
+        return;
+      }
+      ctx.save(); ctx.globalAlpha=alpha;
+      ctx.fillStyle='#000'; // stilize kartal
+      ctx.beginPath();
+      ctx.moveTo(x-0.6*size, y);
+      ctx.quadraticCurveTo(x-0.2*size, y-0.5*size, x+0.5*size, y-0.2*size);
+      ctx.quadraticCurveTo(x+0.1*size, y+0.2*size, x-0.6*size, y);
+      ctx.fill();
+      // kanat vuruşu efekti
+      ctx.beginPath();
+      ctx.moveTo(x-0.1*size, y-0.1*size);
+      ctx.lineTo(x+0.2*size, y-0.32*size);
+      ctx.lineTo(x+0.06*size, y-0.06*size);
+      ctx.fill();
+      ctx.restore();
+    }
+
+    function drawCoach(team, x, y){
+      const isHome = team==='home';
+      const imgKey = isHome ? 'coach_home' : 'coach_away';
+      if(IMAGES[imgKey]){
+        ctx.drawImage(IMAGES[imgKey], x-16, y-48, 32, 48);
+        return;
+      }
+      // silüet
+      ctx.save();
+      ctx.fillStyle = isHome ? '#ffffffcc' : '#ff7272cc';
+      ctx.beginPath(); ctx.arc(x, y-42, 8, 0, Math.PI*2); ctx.fill();
+      ctx.fillRect(x-6, y-42, 12, 26);
+      ctx.restore();
+    }
+
+    function drawPlayer(team, px, py){
+      const x = toPxX(px), y = toPxY(py);
+      const imgKey = team==='home' ? 'player_home' : 'player_away';
+      if(IMAGES[imgKey]){
+        ctx.save();
+        // gölge
+        ctx.fillStyle='rgba(0,0,0,.35)';
+        ctx.beginPath(); ctx.ellipse(x+4,y+10,PLAYER_R*scale*1.2,PLAYER_R*scale*0.6,0,0,Math.PI*2); ctx.fill();
+        ctx.drawImage(IMAGES[imgKey], x-18, y-30, 36, 36);
+        ctx.restore();
+        return;
+      }
+      // vektör forma
+      // gölge
+      ctx.fillStyle='rgba(0,0,0,.35)'; ctx.beginPath();
+      ctx.ellipse(x+4,y+10,PLAYER_R*scale*1.2,PLAYER_R*scale*0.6,0,0,Math.PI*2); ctx.fill();
+      // gövde
+      const r=PLAYER_R*scale;
+      if(team==='home'){
+        const g = ctx.createLinearGradient(x-r,y-r,x+r,y+r);
+        g.addColorStop(0,'#111'); g.addColorStop(0.5,'#f7f7f7'); g.addColorStop(1,'#111');
+        ctx.fillStyle=g;
+      }else{
+        ctx.fillStyle='#e11d48'; // kırmızı
+      }
+      ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2); ctx.fill();
+      ctx.strokeStyle='rgba(255,255,255,.6)'; ctx.lineWidth=1; ctx.stroke();
+      // kafa
+      ctx.fillStyle='#f7e7da'; ctx.beginPath(); ctx.arc(x, y-r*0.9, r*0.45, 0, Math.PI*2); ctx.fill();
+    }
+
+    function drawKeeper(team, gx, gy){
+      const x=toPxX(gx), y=toPxY(gy);
+      const imgKey = team==='home' ? 'gk_home' : 'gk_away';
+      if(IMAGES[imgKey]){
+        // gölge
+        ctx.fillStyle='rgba(0,0,0,.35)';
+        ctx.beginPath(); ctx.ellipse(x+3,y+10,12,5,0,0,Math.PI*2); ctx.fill();
+        ctx.drawImage(IMAGES[imgKey], x-16, y-24, 32, 48);
+        return;
+      }
+      // vektör kaleci
+      const w=1.2*scale, h=3.8*scale;
+      ctx.fillStyle = team==='home' ? '#10b981' : '#60a5fa';
+      roundRect(x-w/2,y-h/2,w,h,6,true);
+      ctx.strokeStyle='rgba(255,255,255,.6)'; ctx.stroke();
+      // eldiven
+      ctx.fillStyle = team==='home' ? '#22c55e' : '#93c5fd';
+      ctx.beginPath(); ctx.arc(x-w*0.6, y, 5, 0, Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc(x+w*0.6, y, 5, 0, Math.PI*2); ctx.fill();
+    }
+
+    function drawBall(bx,by){
+      const x=toPxX(bx), y=toPxY(by), r=BALL_R*scale;
+      ctx.fillStyle='rgba(0,0,0,.3)'; ctx.beginPath(); ctx.ellipse(x+3,y+5,r*1.1,r*0.7,0,0,Math.PI*2); ctx.fill();
+      const g=ctx.createRadialGradient(x-4,y-6,r*0.2,x,y,r);
+      g.addColorStop(0,'#fff'); g.addColorStop(1,'#c6d0d9');
+      ctx.fillStyle=g; ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2); ctx.fill();
+      ctx.strokeStyle='rgba(0,0,0,.25)'; ctx.lineWidth=1; ctx.stroke();
+      ctx.strokeStyle='rgba(0,0,0,.35)'; ctx.beginPath();
+      for(let i=0;i<6;i++){ const a=i*(Math.PI/3); ctx.moveTo(x,y); ctx.lineTo(x+Math.cos(a)*r, y+Math.sin(a)*r); }
+      ctx.stroke();
+    }
+
+    function roundRect(x,y,w,h,r,fill){ ctx.beginPath();
+      ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r);
+      ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); if(fill) ctx.fill(); else ctx.stroke();
+    }
+    function line(x1,y1,x2,y2){ ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke(); }
+    function circle(cx,cy,r){ ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.stroke(); }
+
+    // Başlat
+    Promise.all(Object.entries(IMG_PATHS).map(([k,src])=>loadOptionalImage(k,src))).then(()=>{
+      resetAfterGoal('home'); // skor güncelle ve santra
+      requestAnimationFrame(loop);
+    });
   </script>
 </body>
 </html>
